@@ -13,6 +13,7 @@ allexpr::allexpr(linked_list* list, SymTab* T, int D)
     while(temp){cout<<temp->get_class()<<" ";temp=temp->next;}
     cout<<endl;
     sTable = T, Depth = D; LIST = list;
+    ErrorCheck();
     allexpScan();
 }
 
@@ -25,26 +26,34 @@ void allexpr::ErrorCheck(){
         if(temp->get_class()=="NUM"){type="int"; TypeFound=true;break;}
         if(temp->get_class()=="REAL"){type="float"; TypeFound=true;break;}
         if(temp->get_class()=="FALSE"||temp->get_class()=="TRUE"){type="bool"; TypeFound=true;break;}
-    temp=temp->next;
+        temp=temp->next;
     }
     string data;
     while(temp){
         data = temp->get_class();
         if(type=="int"){if(data=="REAL"||data=="float"||data=="FALSE"||data=="TRUE"){
-                        cout<<"ERROR: Incompatible arguement ";
-                        cout<<temp->get_data()<<" in expression on line "<<temp->get_LN();}
+                cout<<"ERROR: Incompatible arguement ";
+                cout<<temp->get_data()<<" in expression on line "<<temp->get_LN();}
         }else
         if(type=="float"){if(data=="int"||data=="NUM"||data=="FALSE"||data=="TRUE"){
-                        cout<<"ERROR: Incompatible arguement ";
-                        cout<<temp->get_data()<<" in expression on line "<<temp->get_LN();}
+                cout<<"ERROR: Incompatible arguement ";
+                cout<<temp->get_data()<<" in expression on line "<<temp->get_LN();}
         }else
         if(type=="bool"){if(data=="REAL"||data=="float"||data=="int"||data=="NUM"){
-                        cout<<"ERROR: Incompatible arguement ";
-                        cout<<temp->get_data()<<" in expression on line "<<temp->get_LN();}
-           if(data=="GE"||data=="LE"||data=="<"||data==">"||data=="+"||data=="-"||data=="*"||data=="/"){
-                        cout<<"ERROR: Incompatible arguement ";
-                        cout<<temp->get_data()<<" in expression on line "<<temp->get_LN();}
-        } temp=temp->next;
+                cout<<"ERROR: Incompatible arguement ";
+                cout<<temp->get_data()<<" in expression on line "<<temp->get_LN();}
+            if(data=="GE"||data=="LE"||data=="<"||data==">"||data=="+"||data=="-"||data=="*"||data=="/"){
+                cout<<"ERROR: Incompatible arguement ";
+                cout<<temp->get_data()<<" in expression on line "<<temp->get_LN();}
+        }
+        if(data == "="||data =="DO"||data =="BREAK"||data =="IF"||data =="WHILE"||data =="ELSE"||data =="FOR"||data ==";"
+           ||data=="{"||data=="}"){
+            cout<<"ERROR: No applicable Grammar for Stmt on line ";
+            cout<<LIST->head->get_LN()<<" Beginning with Token ";
+            cout<<LIST->head->get_data()<<". Incompatible Token";
+            cout<<temp->get_data(); exit(1);
+        }
+        temp=temp->next;
     }
 }
 
@@ -86,6 +95,11 @@ incdecexpr::incdecexpr(linked_list* list, SymTab* T, int D)
 {   cout<<" INCDEC_EXPRES_CALLED "<<endl;
     Token* temp = list->head;
     while(temp){cout<<temp->get_class()<<" ";temp=temp->next;}
+    if(list->listSize()<3){
+        cout<<"ERROR: No applicable Grammar for Stmt on line ";
+        cout<<list->head->get_LN()<<" Beginning with Token ";
+        cout<<list->head->get_data()<<endl; exit(1);
+    }
     cout<<endl;
     sTable = T; Depth = D;LIST = list;
     temp = LIST -> head;
@@ -130,10 +144,10 @@ void factor::scan()
     }
 }
 void factor::printFact(){
-       if(allExpression){allExpression->allexpScan();}else
-       if(IncDec){IncDec->printIncDecEx();}else
-       {for(int i=0; i<=Depth; i++){cout<<"| "; }
-           cout<<"+--Token "<<tok<<endl;}
+    if(allExpression){allExpression->allexpScan();}else
+    if(IncDec){IncDec->printIncDecEx();}else
+    {for(int i=0; i<=Depth; i++){cout<<"| "; }
+        cout<<"+--Token "<<tok<<endl;}
 }
 //Term Function
 term::term(linked_list* list, SymTab* T, int D)
@@ -295,10 +309,7 @@ void EQ::EqScan(){
     Token *temp = LIST -> head;
     bool inside;
     int rp = 0, lp = 0, rb = 0, lb = 0, pos = 0;
-   /* cout<<endl;
-    while(temp){cout<<temp->get_class()<<" ";temp=temp->next;}
-    cout<<endl;
-    temp=LIST->head;*/
+
     while(temp){
         if (temp ->get_data() == "(")   rp++;
         if (temp ->get_data() == ")")   lp++;
@@ -316,8 +327,8 @@ void EQ::EqScan(){
         {   Sym = temp->get_data();
             linked_list* temp3 = LIST -> split_set(0, pos - 1);
             linked_list* temp4 = LIST -> split_set(1, LIST->listSize() - 1);
-            E1 = new EQ(temp3, sTable, Depth );
-            R1 = new rel(temp4, sTable, Depth);
+            E1 = new EQ(temp3, sTable, Depth+1 );
+            R1 = new rel(temp4, sTable, Depth+1);
             break;
         }
         pos++;
@@ -331,7 +342,7 @@ void EQ::typeCheck() {
     bool TypeFound = false;
     while(temp){
         if(temp->get_class()=="ID" && !sTable->inTable(temp->get_data())){
-        cout<<"SCOPE ERROR on line "<<temp->get_LN()<<", ID '"<<temp->get_data()<<"' is UN-INITILIZED."<<endl; exit(1);}
+            cout<<"SCOPE ERROR on line "<<temp->get_LN()<<", ID '"<<temp->get_data()<<"' is UN-INITILIZED."<<endl; exit(1);}
         if(!TypeFound && temp->get_class() == "ID") {
             TypeFound=true;
             TYPE = sTable->findType(temp->get_data());

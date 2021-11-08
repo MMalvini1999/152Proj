@@ -1,0 +1,66 @@
+Input:
+{
+int r; int i;
+i=0;
+r=5;
+for (i=0; i<5; i++)
+{
+    r=r+5;
+    r=r/10;
+    if (r != 1)
+    {
+    r=1;
+    }
+}
+}
+
+Output:
++--PROGRAM
+| +--Block
+| | +--STMT
+| | | +--ASSIGN
+| | | | +--Token i
+| | | | +--Token 0
+| | | +--STMT
+| | | | +--ASSIGN
+| | | | | +--Token r
+| | | | | +--Token 5
+| | | | +--STMT
+| | | | | +--FOR
+| | | | | | +--Token <
+| | | | | | | +--Token i
+| | | | | | | +--Token 5
+| | | | | | +--Token i
+| | | | | | +--Token +
+| | | | | | +--Token +
+| | | | | +--STMT
+| | | | | | +--Block
+| | | | | | | +--STMT
+| | | | | | | | +--ASSIGN
+| | | | | | | | | +--Token r
+| | | | | | | | | +--Token +
+| | | | | | | | | | +--Token r
+| | | | | | | | | | +--Token 5
+| | | | | | | | +--STMT
+| | | | | | | | | +--ASSIGN
+| | | | | | | | | | +--Token r
+| | | | | | | | | | +--Token /
+| | | | | | | | | | | +--Token r
+| | | | | | | | | | | +--Token 10
+| | | | | | | | | +--STMT
+| | | | | | | | | | +--IF
+| | | | | | | | | | | +--Token !=
+| | | | | | | | | | | +--Token r
+| | | | | | | | | | | +--Token 1
+| | | | | | | | | +--STMT
+| | | | | | | | | | +--Block
+| | | | | | | | | | | +--STMT
+| | | | | | | | | | | | +--ASSIGN
+| | | | | | | | | | | | | +--Token r
+| | | | | | | | | | | | | +--Token 1
+
+
+
+
+
+

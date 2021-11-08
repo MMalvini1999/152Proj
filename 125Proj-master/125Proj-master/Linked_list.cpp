@@ -22,7 +22,7 @@ linked_list::~linked_list(){
 
 bool linked_list::isEmpty(){
     return ( head == NULL
-            );}
+    );}
 
 int linked_list::listSize(){
     Token* temp = head;
@@ -137,15 +137,23 @@ linked_list* linked_list::split_set(int position_1, int position_2) {
     new_list->tail = temp2;
 
     if(temp1 == head){
-        head = tail = temp2->next;
-        new_list->tail->next = nullptr;
-        head->prev = nullptr;
+        new_list->head=head;
+        head=temp2->next;
+        new_list->tail=head->prev;
+        head->prev= nullptr;
+        new_list->tail->next= nullptr;
         return new_list;
     }
     if(temp2 == tail){
-        tail = temp1->prev;
-        new_list->head->prev = nullptr;
-        tail->next = nullptr;
+        /* tail = temp1->prev;
+         new_list->head->prev = nullptr;
+         tail->next = nullptr;
+         return new_list;*/
+        new_list->tail=tail;
+        tail=temp1->prev;
+        new_list->head=temp1;
+        new_list->head->prev= nullptr;
+        tail->next= nullptr;
         return new_list;
     }
     temp1 = temp1->prev;

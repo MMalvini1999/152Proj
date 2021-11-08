@@ -12,17 +12,23 @@ Stmt1::Stmt1(linked_list* list, SymTab* T, int D) //constructor
 void Stmt1::ScanCls1(){
     typeCheck(); //verifying ID token
     Token* temp = LIST->head; //setting pointer to beginning of linked list nodes
+    if(LIST->listSize()<4||LIST->tail->get_data()!=";"||LIST->head->next->get_data()!="="){
+        cout<<"ERROR: No applicable Grammar for Stmt on line ";
+        cout<<LIST->head->get_LN()<<" Beginning with Token ";
+        cout<<LIST->head->get_data()<<endl; exit(1);
+    }
+
     ID=temp->get_data(); //assigning ID token to pointer accessing next data
     if(!sTable->inTable(ID)){cout<<"Undeclared ID ERROR on line "<<temp->get_LN()<<endl;} //error handling
     linked_list* AE = LIST->split_set(2, LIST->listSize()-2);
     AE->Print();
     allExpression = new allexpr(AE, sTable, Depth);
 }
-void Stmt1::printStmt1(){ //outputting assign
-    for(int i=0; i<=Depth; i++){cout<<"| "; } //creating branches for all variables
+void Stmt1::printStmt1(){
+    for(int i=0; i<=Depth; i++){cout<<"| "; }  //creating branches for all variables
     cout<<"+--ASSIGN"<<endl;
     for(int i=0; i<=Depth+1; i++){cout<<"| "; }
-    cout<<"+--Token "<<ID<<endl; //outputting tokens
+    cout<<"+--Token "<<ID<<endl;
     allExpression->printAllexpr();
 }
 void Stmt1::typeCheck() { //verifying if ID is actually defined in symbol table
@@ -75,8 +81,8 @@ Stmt2::Stmt2(linked_list* list, SymTab* T, int D){
 void Stmt2::ScanCls2(){
     // handles "if (allexpr) stmt"
     Token* temp=LIST->head; //setting pointer to beginning of linked list nodes
-    int pos=0;
-    int LP=0; //variable used for lefthand parenthesis in allexpr
+    int pos=0; //index 2 starting
+    int LP=0;  //variable used for lefthand parenthesis in allexpr
     int RP=0;
     int count = 0;
     linked_list* ptr; //pointer assigned to list while nodes get split up
@@ -105,7 +111,7 @@ void Stmt2::printStmt2(){
 }
 
 Stmt3::Stmt3(linked_list* list, SymTab* T, int D)
-{   //handles if (allexpr) stmt else stmt
+{    //handles if (allexpr) stmt else stmt
     cout<<"Stmt3 found"<<endl;
     sTable = T, Depth = D; LIST=list;
     ScanCls3();
@@ -135,16 +141,16 @@ void Stmt3::ScanCls3(){
         temp = temp->next;
     }
 
-    allExpression= new allexpr (ptr, sTable, Depth); //created which holds allexpr contents
-    ptr2=LIST->split_set(3, count-1);
+    allExpression= new allexpr (ptr, sTable, Depth);
+    ptr2=LIST->split_set(3, count-1); //created which holds allexpr contents
     ptr3 = LIST->split_set(4,LIST->listSize()-1);
     temp = ptr3->head;
     while(temp){
         cout<<temp->get_data();
         temp = temp->next;
     }
-    S1 =new Stmt (ptr2, sTable, Depth); //dealing with contents of first stmt
-    S2 =new Stmt (ptr3,sTable, Depth);
+    S1 =new Stmt (ptr2, sTable, Depth+1); //dealing with contents of first stmt
+    S2 =new Stmt (ptr3,sTable, Depth+1);
 }
 void Stmt3::printStmt3(){
     for(int i=0; i<=Depth; i++){cout<<"| "; }
@@ -157,7 +163,7 @@ void Stmt3::printStmt3(){
 }
 
 Stmt4::Stmt4(linked_list* list, SymTab* T, int D)
-{   //handles while (allexpr) stmt
+{    //handles while (allexpr) stmt
     cout<<"Stmt4 found"<<endl;
     Token* temp = list->head;
     while(temp){cout<<temp->get_class()<<" ";temp=temp->next;}
@@ -169,7 +175,7 @@ Stmt4::Stmt4(linked_list* list, SymTab* T, int D)
 void Stmt4::ScanCls4()
 {
     Token* temp=LIST->head->next->next;
-    int pos=2; //avoids first parenthesis and "while"
+    int pos=2; //index 2 starting
     int LP=1;
     int RP=0;
     linked_list* ptr;
@@ -198,8 +204,8 @@ Stmt5::Stmt5(linked_list* list, SymTab* T, int D)
     ScanCls5();
 };
 
-void Stmt5::ScanCls5(){
-    //handles "do stmt while(allexpr);"
+void Stmt5::ScanCls5()
+{  //handles "do stmt while(allexpr);"
     Token* temp = LIST->head;
     int count = 0;
     int stmtend = 0;
@@ -211,7 +217,7 @@ void Stmt5::ScanCls5(){
         temp = temp->next;
     }
     WHILE = temp->get_class();
-    S1 = new Stmt(LIST->split_set(1,stmtend-1), sTable, Depth);
+    S1 = new Stmt(LIST->split_set(1,stmtend-1), sTable, Depth+1);
     temp = LIST->head;
 
     while(temp){
@@ -222,6 +228,8 @@ void Stmt5::ScanCls5(){
         temp = temp->next;
     }
     allExpression= new allexpr (ptr, sTable, Depth);
+
+
 }
 
 void Stmt5::printStmt5(){
@@ -242,16 +250,7 @@ Stmt6::Stmt6(linked_list* list, SymTab* T, int D)
 };
 
 void Stmt6::ScanCls6()
-{    //handles "for(assign allexpr; incdecexpr) stmt"
-    /*int LP=0, RP=0, pos=0;
-    Token* temp = LIST->head;
-    string data;
-    while(temp){
-        data = temp->get_data();
-        if(data=="("){LP++;}
-        if(data==")"){RP++;}
-        if(data==")")
-    }*/
+{   //handles "for(assign allexpr; incdecexpr) stmt"
     Token* temp=LIST->head;
     int pos=2; //index 2 starting
     int semipos = 1;
@@ -259,34 +258,28 @@ void Stmt6::ScanCls6()
     FOR = LIST->head->get_class();
     temp = temp->next;
 
-
     if(temp->get_data() == "("){
         while(temp->get_data() != ";"){
             semipos++;
             temp = temp->next;
         }
-        A1 = new Stmt1(LIST->split_set(pos,semipos), sTable, Depth);
+        A1 = new Stmt1(LIST->split_set(pos,semipos), sTable, Depth+1);
     }
-
     temp = LIST->head;
-
     semipos = 0;
     while(temp->get_data() != ";"){
         semipos++;
         temp = temp->next;
     }
-
     allExpression = new allexpr(LIST->split_set(pos,semipos-1), sTable, Depth);
-
     semipos = 0;
     temp = LIST->head;
-
     while(temp->get_data() != ")"){
         semipos++;
         temp = temp->next;
     }
     IncD = new incdecexpr(LIST->split_set(pos+1,semipos), sTable, Depth+1);
-    S1 = new Stmt(LIST->split_set(3, LIST->listSize()-1), sTable, Depth);
+    S1 = new Stmt(LIST->split_set(3, LIST->listSize()-1), sTable, Depth+1);
 }
 
 void Stmt6::printStmt6(){
@@ -335,11 +328,11 @@ void Stmt::makeNewStmt() {
         if (!found_flag) { S2 = new Stmt2(LIST, sTable, Depth); }
     }else  //S4 Parsing
     if (temp->get_class() == "WHILE") { S4 = new Stmt4(LIST, sTable, Depth); }else
-    //S5 Parsing
+        //S5 Parsing
     if (temp->get_class() == "DO") { S5 = new Stmt5(LIST, sTable, Depth); }else
-    //S6 Parsing
+        //S6 Parsing
     if (temp->get_class() == "FOR") {S6 = new Stmt6(LIST, sTable, Depth); }else
-    //S1 parsing
+        //S1 parsing
     if (temp->get_class() == "ID") { S1 = new Stmt1(LIST, sTable, Depth); }else
     if (temp->get_data() == "{") { B = new Block(Depth + 1, LIST, sTable); }else
     if(temp->get_class()=="BREAK"){BREAK="BREAK";}
