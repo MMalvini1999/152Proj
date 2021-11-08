@@ -1,0 +1,11 @@
+{
+int r; int dd; int a;int d;
+r = a; dd = d;int i;
+do {a=d;} while(a<d);
+for(i=0;i<a;i++){a=r;dd=d;}
+do a+i while+(a<d);
+
+int r; int i; r=0;
+
+for (i=0; i<=5; i++){r = a+d; }
+}

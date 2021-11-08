@@ -1,0 +1,56 @@
+N = Num, A = Letter, char = char
+Class       Data
+Token       Value                    1stPos        ASCII       MinSpace   Done  f(x)
+(           (                       char>1>X        40          1           x   isTokenL1
+)           )                       char>1>X        41          1           x   isTokenL1
+*           *                       char>1>X        42          1           x   isTokenL1
++           +                       char>1>X        43          1           x   isTokenL1
+-           -                       char>1>X        45          1           x   isTokenL1
+/           /                       char>1>X        47          1           x   isTokenL1
+;           ;                       char>1>X        59          1           x   isTokenL1
+{           {                       char>1>X        123         1           x   isTokenL1
+}           }                       char>1>X        125         1           x   isTokenL1
+<           <                       char>1> ~=      60          2           x   isTokenL2
+=           =                       char>1> ~=      61          2           x   isTokenL2
+>           >                       char>1> ~=      62          2           x   isTokenL2
+AND         &&                      char>1>2>X      38,38       2           x   isTokenL2
+EQ          ==                      char>1>2>X      61,61       2           x   isTokenL2
+GE          >=                      char>1>2>X      62,61       2           x   isTokenL2
+LE          <=                      char>1>2>X      60,61       2           x   isTokenL2
+NE          !=                      char>1>2>X      33,61       2           x   isTokenL2
+OR          ||                      char>1>2>X      124,124     2           x    isTokenL2
+ID          [A-Za-z][A-Za-z0-9_]*   A>ID>~char|W    65-90       2+              isTokenL2+
+                                                    97-122
+                                                    48-57
+NUM         [0-9]+                  N>~N||~.        48-57       2+          x   isTokenL2+
+REAL        [0-9]+.[0-9]+           N>char          46,48-57    2+          x   isTokenL2+
+*may start with "." or "num"
+IF          if                      A>T>WS                      3           x   isToken3plus
+DO          do                      A>T>WS                      3           x   isToken3plus
+FOR         for                     A>T>WS                      4           x   isToken3plus
+BASE_TYPE   int|float|bool          A>TB>WS                     4+          x   isToken3plus
+TRUE        true                    A>T>WS                      5           x   isToken3plus
+ELSE        else                    A>T>WS                      5           x   isToken3plus
+FALSE       false                   A>T>WS                      6           x   isToken3plus
+WHILE       while                   A>T>WS                      6           x   isToken3plus
+BREAK       break                   A>T>WS                      6           x   isToken3plus
+
+EOF         EOF
+
+program  -> block
+block -> { decls stmts  }
+decls ->  ε | decls decl
+decl ->  type id ;
+type  ->  int | float | boolx
+stmts  ->  ε | stmts  stmt
+assign -> id = allexpr ;
+stmt  ->  Xassign | Xif (allexpr) stmt | Xif (allexpr) stmt else stmt | while (allexpr) stmt
+   |   Xdo stmt while (allexpr) ; | for (assign allexpr ; incdecexpr)  stmt  | break ; | block
+allexpr -> allexpr || andexpr | andexpr
+andexpr -> andexpr && equal | equal
+equal -> equal == rel | equal != rel | rel
+rel -> expr < expr | expr <= expr | expr > expr | expr  >= expr | expr
+expr -> expr + term | expr – term | term
+term ->  term * factor | term / factor | factor
+incdecexpr -> id++ | id--
+factor -> (allexpr) | incdecexpr | id | num | real | true | false
